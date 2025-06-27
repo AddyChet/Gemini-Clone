@@ -4,7 +4,7 @@ Follow these steps to install, configure, and run your Gemini Clone project usin
 
 ---
 
-## 🔧 1. Clone the Repository
+## 🔧 Clone the Repository
 
 ```bash
 git clone https://github.com/AddyChet/Gemini-Clone.git
