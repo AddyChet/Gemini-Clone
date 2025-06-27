@@ -1,14 +1,21 @@
-import React from "react";
 import Sidebar from "./Components/Sidebar/Sidebar";
 import Main from "./Components/Main/Main";
+import { Routes, Route } from "react-router";
+import Result from "./Components/Main/Result";
 
 
 const App = () => {
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex root">
+      <div className="hidden sm:block">
+
       <Sidebar />
-      <Main />
+      </div>
+      <Routes>
+        <Route path="/" element={<Main />}/>
+        <Route path="/:prompt" element={<Result />} />
+      </Routes>
     </div>
   );
 };

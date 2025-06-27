@@ -21,9 +21,7 @@ export async function generate(prompt) {
 
   let result = chatCompletion.choices[0].message.content;
 
-  // Clean the <think> block from result
+  // Cleaning the <think> block from result
   result = removeThinkBlock(result);
-
-  console.log(result);
   return result;
 }

@@ -1,4 +1,4 @@
-import React, { useContext, useRef } from "react";
+import React, { useContext, useState } from "react";
 import { assets } from "../../assets/assets";
 import { Context } from "../../context/Context";
 import ReactMarkdown from "react-markdown";
@@ -9,13 +9,19 @@ import "highlight.js/styles/github-dark.css";
 const Main = () => {
   const { onSent, recentPrompt, showResult, loading, resultData } =
     useContext(Context);
-  const inputRef = useRef();
+
+  const [displayText, setDisplayText] = useState("");
 
   const handleInputSent = () => {
-    const prompt = inputRef.current.value;
+    const prompt = displayText;
     onSent(prompt);
-    inputRef.current.value = "";
+    setDisplayText("");
   };
+
+  const handleInputChange = (e) => {
+    setDisplayText(e.target.value);
+  };
+
   return (
     <div className="flex-1 min-h-screen pb-[15vh] relative">
       <div className="flex items-cebter justify-between text-[22px] p-5 text-[#585858]">
@@ -29,10 +35,10 @@ const Main = () => {
             <div className="my-12.5 mx-0 text-5xl text-[#c4c7c5] font-medium p-5">
               <p>
                 <span className="bg-gradient-to-r from-blue-400 via-blue-500 to-red-500 bg-clip-text text-transparent">
-                  Hello Dev
+                  Hello Adarsh,
                 </span>
               </p>
-              <p>How can i help u today?</p>
+              <p>How can I help you today?</p>
             </div>
 
             <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-3.5 p-5">
@@ -111,30 +117,33 @@ const Main = () => {
         )}
 
         <div className="absolute bottom-0 w-full max-w-[900px] px-5 m-auto">
-          <div className="flex items-center justify-between gap-5 bg-[#f0f4f9] py-2.5 px-5 rounded-[50px]">
+          <div className="flex items-center justify-between gap-5 bg-[#f0f4f9] sm:py-2.5 sm:px-5 py-[5px] px-2.5 rounded-[50px]">
             <input
               type="text"
-              ref={inputRef}
+              onChange={handleInputChange}
+              value={displayText}
               placeholder="Enter a prompt here"
-              className="flex-1 bg-transparent border-none outline-none p-2 text-lg"
+              className="sm:flex-1 bg-transparent border-none outline-none p-2 text-lg flex-none w-[150px] sm:w-full"
             />
             <div className="flex gap-3.5 items-center">
               <img
-                className="w-6 cursor-pointer"
+                className="sm:w-6 w-5 cursor-pointer"
                 src={assets.gallery_icon}
                 alt=""
               />
               <img
-                className="w-6 cursor-pointer"
+                className="sm:w-6 w-5 cursor-pointer"
                 src={assets.mic_icon}
                 alt=""
               />
-              <img
-                onClick={handleInputSent}
-                className="w-6 cursor-pointer"
-                src={assets.send_icon}
-                alt=""
-              />
+              {displayText ? (
+                <img
+                  onClick={handleInputSent}
+                  className="sm:w-6 w-5 cursor-pointer"
+                  src={assets.send_icon}
+                  alt=""
+                />
+              ) : null}
             </div>
           </div>
 
