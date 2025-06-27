@@ -16,13 +16,15 @@ cd Gemini-Clone
 npm install
 ```
 
-###🔐 Create a Hugging Face API Token
-1.Visit huggingface.co/settings/tokens
-2.Click New Token and give it a name (e.g., deepseek-r1)
-3. Set it to have read access
+## 🔐 Create a Hugging Face API Token
+
+1. Visit [huggingface.co/settings/tokens](https://huggingface.co/)
+2. Click **New Token** and give it a name (e.g., `deepseek-r1`)
+3. Set it to have **read access**
 4. Copy the generated token
 
-### 🌿Setup Environment Variables
+
+## 🌿Setup Environment Variables
 In the root of your project, create a .env file and add the token shown below:
 
 ```bash
@@ -30,7 +32,7 @@ touch .env
 VITE_HF_TOKEN=your_token_here
 ```
 
-### ▶️ Start the Dev Server
+## ▶️ Start the Dev Server
 ```bash
    npm run dev
 ```
