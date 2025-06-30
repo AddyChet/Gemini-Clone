@@ -1,6 +1,6 @@
-import { createContext, useState } from "react";
-import { generate } from "../config/ai";
+import { createContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
+import { generate } from "../config/ai";
 
 export const Context = createContext();
 
@@ -26,38 +26,52 @@ export const ContextProvider = ({ children }) => {
   };
 
   const onSent = async (prompt) => {
-    if (!prompt || prompt.trim() === "") {
-      console.warn("Prompt is empty. Skipping request.");
-      return;
-    }
+    if (!prompt?.trim()) return;
 
     setResultData("");
     setLoading(true);
     setShowResult(true);
     setRecentPrompt(prompt);
 
-    try {
-      const response = await generate(prompt);
-      setResultData(response);
+    const slug = slugify(prompt);
 
-      setPrevPrompt((prev) =>
-        prev.some((entry) => entry.slug === slugify(prompt))
-          ? prev
-          : [
-              ...prev,
-              {
-                prompt,
-                resultData: response,
-                slug: slugify(prompt),
-              },
-            ]
-      );
+    try {
+      // const response = await generate(prompt);
+      // setResultData(response);
+
+      setPrevPrompt((prev) => {
+        const alreadyExists = prev.some((entry) => entry.slug === slug);
+        if (alreadyExists) return prev;
+
+        const newEntry = { prompt, resultData: "SampleResult", slug };
+        return [...prev, newEntry];
+      });
     } catch (err) {
       setResultData("❌ Failed to fetch response.");
     } finally {
       setLoading(false);
     }
   };
+
+  // Load prompts from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem("prompts");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          setPrevPrompt(parsed);
+        }
+      } catch (e) {
+        console.error("Invalid JSON in localStorage");
+      }
+    }
+  }, []);
+
+  // Save prompts to localStorage on every update
+  useEffect(() => {
+    localStorage.setItem("prompts", JSON.stringify(prevPrompt));
+  }, [prevPrompt]);
 
   const contextValue = {
     prevPrompt,
