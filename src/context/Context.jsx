@@ -36,14 +36,14 @@ export const ContextProvider = ({ children }) => {
     const slug = slugify(prompt);
 
     try {
-      // const response = await generate(prompt);
-      // setResultData(response);
+      const response = await generate(prompt);
+      setResultData(response);
 
       setPrevPrompt((prev) => {
         const alreadyExists = prev.some((entry) => entry.slug === slug);
         if (alreadyExists) return prev;
 
-        const newEntry = { prompt, resultData: "SampleResult", slug };
+        const newEntry = { prompt, resultData: response, slug };
         return [...prev, newEntry];
       });
     } catch (err) {
