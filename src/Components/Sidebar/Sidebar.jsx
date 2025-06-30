@@ -45,7 +45,7 @@ const Sidebar = () => {
                 >
                   <img className="w-5" src={assets.message_icon} alt="" />
                   <p>
-                    {item.length > 18
+                    {item.prompt.length > 18
                       ? `${item?.prompt.slice(0, 18)}...`
                       : item?.prompt}
                   </p>
