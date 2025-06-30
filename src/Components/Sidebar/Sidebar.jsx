@@ -36,20 +36,22 @@ const Sidebar = () => {
         {extended ? (
           <div className="flex flex-col text-start root">
             <p className="mt-7.5 mb-5 ">Recent</p>
-            {prevPrompt.map((item, i) => (
-              <div
-                onClick={() => loadPrompt(item.prompt)}
-                key={i}
-                className="flex items-center gap-2.5 p-2.5 pr-10 rounded-[50px] text-[#282828] cursor-pointer hover:bg-[#e2e6eb]"
-              >
-                <img className="w-5" src={assets.message_icon} alt="" />
-                <p>
-                  {item.length > 18
-                    ? `${item?.prompt.slice(0, 18)}...`
-                    : item?.prompt}
-                </p>
-              </div>
-            ))}
+            <div className=" max-h-[350px] overflow-y-auto scrollbar-hide scrollbar-custom">
+              {prevPrompt.map((item, i) => (
+                <div
+                  onClick={() => loadPrompt(item.prompt)}
+                  key={i}
+                  className="flex items-center gap-2.5 p-2.5 pr-10 rounded-[50px] text-[#282828] cursor-pointer hover:bg-[#e2e6eb] "
+                >
+                  <img className="w-5" src={assets.message_icon} alt="" />
+                  <p>
+                    {item.length > 18
+                      ? `${item?.prompt.slice(0, 18)}...`
+                      : item?.prompt}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
         ) : null}
       </div>
