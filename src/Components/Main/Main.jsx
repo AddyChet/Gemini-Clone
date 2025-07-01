@@ -1,15 +1,19 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useRef, useState } from "react";
 import { assets } from "../../assets/assets";
 import { Context } from "../../context/Context";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
 import "highlight.js/styles/github-dark.css";
+import { BsX } from "react-icons/bs";
 
 const Main = () => {
   const { onSent, recentPrompt, showResult, loading, resultData } =
     useContext(Context);
 
+  const [fileObj, setFileObj] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const fileInputRef = useRef();
   const [displayText, setDisplayText] = useState("");
 
   const handleInputSent = () => {
@@ -33,6 +37,31 @@ const Main = () => {
       setDisplayText("");
     }
   };
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+
+    if (file) {
+      setFileObj(file);
+      setPreviewUrl(URL.createObjectURL(file));
+    } else {
+      setFileObj(null);
+      setPreviewUrl(null);
+    }
+  };
+
+  const handleDeleteImg = () => {
+    setFileObj(null);
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl); // Clean up the object URL
+      setPreviewUrl(null);
+    }
+    // Reset the file input value so the same file can be selected again
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
   return (
     <div className="flex-1 min-h-screen pb-[15vh] relative">
       <div className="flex items-cebter justify-between text-[22px] p-5 text-[#585858]">
@@ -44,7 +73,7 @@ const Main = () => {
         {/* add a dynamic prompt based on users generation */}
         {!showResult ? (
           <>
-            <div className="my-12.5 mx-0 text-5xl text-[#c4c7c5] font-medium p-5">
+            <div className="lg:my-8.5 md:my-4.5 my-1 mx-0 text-5xl text-[#c4c7c5] font-medium p-5">
               <p>
                 <span className="bg-gradient-to-r from-blue-400 via-blue-500 to-red-500 bg-clip-text text-transparent">
                   Hello Adarsh,
@@ -97,7 +126,7 @@ const Main = () => {
                 />
               </div>
               <div
-                className="h-50 p-4 bg-[#f0f4f9] relative rounded-[10px] cursor-pointer hover:bg-[#dfe4ea]"
+                className={`h-50 p-4 bg-[#f0f4f9] relative rounded-[10px] cursor-pointer hover:bg-[#dfe4ea] ${previewUrl ? "mb-20" : "mb-4"}`}
                 onClick={handlePromptCard}
               >
                 <p className="text-[#585858] text-lg">
@@ -142,22 +171,47 @@ const Main = () => {
             </div>
           </div>
         )}
-
-        <div className="absolute bottom-0 w-full max-w-[900px] px-5 m-auto">
-          <div className="flex items-center justify-between gap-5 bg-[#f0f4f9] sm:py-2.5 sm:px-5 py-[5px] px-2.5 rounded-[50px]">
-            <input
+      
+            
+      
+        <div className="absolute bottom-0 w-full max-w-[900px] px-5 ">
+          <div className="relative  bg-[#f0f4f9] sm:py-5 sm:px-5 py-[5px] px-2.5 rounded-[50px] ">
+            <div>
+              {previewUrl && (
+              <div className="w-18 h-18 md:w-14 md:h-14 bottom-16 flex">
+                <img className="w-full rounded-md" src={previewUrl} />{" "}
+                <button className="absolute text-red-800" onClick={handleDeleteImg}>
+                  <BsX
+                    className="bg-white/80 rounded-full hover:scale-110 cursor-pointer transition duration-300"
+                  />
+                </button>
+              </div>
+            )}
+            </div>
+            <div className="flex items-center justify-between gap-5"><input
               type="text"
               onChange={handleInputChange}
               value={displayText}
               placeholder="Enter a prompt here"
-              className="sm:flex-1 bg-transparent border-none outline-none p-2 text-lg flex-none w-[150px] sm:w-full"
+              className="sm:flex-1 mt-1 bg-transparent border-none outline-none p-2 text-lg flex-none w-[150px] sm:w-full"
             />
             <div className="flex gap-3.5 items-center">
-              <img
-                className="sm:w-6 w-5 cursor-pointer"
-                src={assets.gallery_icon}
-                alt=""
-              />
+              <label htmlFor="img-upload">
+                <img
+                  className="sm:w-6 w-5 cursor-pointer"
+                  src={assets.gallery_icon}
+                  alt=""
+                />
+                <input
+                  id="img-upload"
+                  type="file"
+                  accept=".png, .jpg, .jpeg"
+                  hidden
+                  ref={fileInputRef} // Attach ref to clear the input
+                  onChange={handleImageUpload}
+                />
+              </label>
+
               <img
                 className="sm:w-6 w-5 cursor-pointer"
                 src={assets.mic_icon}
@@ -172,7 +226,7 @@ const Main = () => {
                   alt=""
                 />
               ) : null}
-            </div>
+            </div></div>
           </div>
 
           <p className="text-xs my-3.5 mx-auto text-center font-light">
