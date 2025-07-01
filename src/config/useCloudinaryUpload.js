@@ -1,6 +1,5 @@
 export async function uploadToCloudinary(file) {
   const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME
-  console.log(CLOUD_NAME)
   const url = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/upload`; // replace <cloud_name>
   const formData = new FormData();
   formData.append("file", file);
