@@ -22,6 +22,17 @@ const Main = () => {
     setDisplayText(e.target.value);
   };
 
+  const handlePromptCard = (e) => {
+    setDisplayText(e.target.innerText);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      const prompt = displayText;
+      onSent(prompt);
+      setDisplayText("");
+    }
+  };
   return (
     <div className="flex-1 min-h-screen pb-[15vh] relative">
       <div className="flex items-cebter justify-between text-[22px] p-5 text-[#585858]">
@@ -30,6 +41,7 @@ const Main = () => {
       </div>
 
       <div className="max-w-[900px] m-auto">
+        {/* add a dynamic prompt based on users generation */}
         {!showResult ? (
           <>
             <div className="my-12.5 mx-0 text-5xl text-[#c4c7c5] font-medium p-5">
@@ -42,9 +54,13 @@ const Main = () => {
             </div>
 
             <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-3.5 p-5">
-              <div className="h-50 p-4 bg-[#f0f4f9] relative rounded-[10px] cursor-pointer hover:bg-[#dfe4ea]">
+              <div
+                className="h-50 p-4 bg-[#f0f4f9] relative rounded-[10px] cursor-pointer hover:bg-[#dfe4ea]"
+                onClick={handlePromptCard}
+              >
                 <p className="text-[#585858] text-lg">
-                  Suggest beautiful places to see on an upcoming road trip
+                  What if TypeScript could predict your mood? How would its
+                  types look?
                 </p>
                 <img
                   className="w-8.5 p-1.5 absolute bg-white rounded-[20px] bottom-2.5 right-2.5"
@@ -52,9 +68,13 @@ const Main = () => {
                   alt=""
                 />
               </div>
-              <div className="h-50 p-4 bg-[#f0f4f9] relative rounded-[10px] cursor-pointer hover:bg-[#dfe4ea]">
+              <div
+                className="h-50 p-4 bg-[#f0f4f9] relative rounded-[10px] cursor-pointer hover:bg-[#dfe4ea]"
+                onClick={handlePromptCard}
+              >
                 <p className="text-[#585858] text-lg">
-                  Briefly summarize this concept: Urban Planning
+                  Describe a quiet moment in nature using only UI component
+                  metaphors.
                 </p>
                 <img
                   className="w-8.5 p-1.5 absolute bg-white rounded-[20px] bottom-2.5 right-2.5"
@@ -62,9 +82,13 @@ const Main = () => {
                   alt=""
                 />
               </div>
-              <div className="h-50 p-4 bg-[#f0f4f9] relative rounded-[10px] cursor-pointer hover:bg-[#dfe4ea]">
+              <div
+                className="h-50 p-4 bg-[#f0f4f9] relative rounded-[10px] cursor-pointer hover:bg-[#dfe4ea]"
+                onClick={handlePromptCard}
+              >
                 <p className="text-[#585858] text-lg">
-                  How to make Tea. Steps to make!
+                  Invent a Tailwind class name that sounds like a martial arts
+                  move.
                 </p>
                 <img
                   className="w-8.5 p-1.5 absolute bg-white rounded-[20px] bottom-2.5 right-2.5"
@@ -72,9 +96,12 @@ const Main = () => {
                   alt=""
                 />
               </div>
-              <div className="h-50 p-4 bg-[#f0f4f9] relative rounded-[10px] cursor-pointer hover:bg-[#dfe4ea]">
+              <div
+                className="h-50 p-4 bg-[#f0f4f9] relative rounded-[10px] cursor-pointer hover:bg-[#dfe4ea]"
+                onClick={handlePromptCard}
+              >
                 <p className="text-[#585858] text-lg">
-                  Improve the readibility of the code below
+                  Design a loading animation for an alien spaceship dashboard.
                 </p>
                 <img
                   className="w-8.5 p-1.5 absolute bg-white rounded-[20px] bottom-2.5 right-2.5"
@@ -103,7 +130,7 @@ const Main = () => {
                   <hr className="h-5 rounded-md border-none bg-[#f6f7f8] bg-gradient-to-r from-[#9ed7ff] via-white to-[#9ed7ff] bg-[length:800px_50px]" />
                 </div>
               ) : (
-                <div className="prose prose-invert max-w-none leading-relaxed space-y-4">
+                <div className="prose result md prose-invert leading-8 space-y-4">
                   <ReactMarkdown
                     remarkPlugins={[remarkGfm]}
                     rehypePlugins={[rehypeHighlight]}
@@ -139,6 +166,7 @@ const Main = () => {
               {displayText ? (
                 <img
                   onClick={handleInputSent}
+                  onKeyDown={handleKeyDown}
                   className="sm:w-6 w-5 cursor-pointer"
                   src={assets.send_icon}
                   alt=""
