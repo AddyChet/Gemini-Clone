@@ -1,6 +1,6 @@
 import { createContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { generate } from "../config/ai";
+import { generate, generateImage } from "../config/ai";
 
 export const Context = createContext();
 
@@ -11,12 +11,13 @@ export const ContextProvider = ({ children }) => {
   const [showResult, setShowResult] = useState(false);
   const [loading, setLoading] = useState(false);
   const [resultData, setResultData] = useState("");
+  const [fileObj, setFileObj] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
 
   const slugify = (str) =>
     str
       .toLowerCase()
       .trim()
-      .replace(/[^a-z0-9\s]/g, "")
       .replace(/\s+/g, "-");
 
   const newChat = () => {
@@ -36,16 +37,32 @@ export const ContextProvider = ({ children }) => {
     const slug = slugify(prompt);
 
     try {
-      const response = await generate(prompt);
-      setResultData(response);
+      if(previewUrl){
+        const response = await generateImage(prompt, previewUrl);
+        setResultData(response);
 
-      setPrevPrompt((prev) => {
-        const alreadyExists = prev.some((entry) => entry.slug === slug);
-        if (alreadyExists) return prev;
+        setPrevPrompt((prev) => {
+          const alreadyExists = prev.some((entry) => entry.slug === slug);
+          if (alreadyExists) return prev;
 
-        const newEntry = { prompt, resultData: response, slug };
-        return [...prev, newEntry];
-      });
+          const newEntry = { prompt, resultData: response, slug, image : previewUrl};
+          return [...prev, newEntry];
+        });
+      } 
+      else {
+       const response = await generate(prompt);
+        setResultData(response);
+
+        setPrevPrompt((prev) => {
+          const alreadyExists = prev.some((entry) => entry.slug === slug);
+          if (alreadyExists) return prev;
+
+          const newEntry = { prompt, resultData: response, slug, image : null};
+          return [...prev, newEntry];
+        });
+
+      }
+ 
     } catch (err) {
       setResultData("❌ Failed to fetch response.");
     } finally {
@@ -84,6 +101,10 @@ export const ContextProvider = ({ children }) => {
     resultData,
     newChat,
     slugify,
+    setFileObj,
+    setPreviewUrl,
+    previewUrl,
+    fileObj
   };
 
   return <Context.Provider value={contextValue}>{children}</Context.Provider>;
