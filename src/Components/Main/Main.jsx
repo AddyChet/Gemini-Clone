@@ -6,20 +6,34 @@ import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
 import "highlight.js/styles/github-dark.css";
 import { BsX } from "react-icons/bs";
+import { uploadToCloudinary } from "../../config/useCloudinaryUpload";
+import { ImSpinner8 } from "react-icons/im";
 
 const Main = () => {
-  const { onSent, recentPrompt, showResult, loading, resultData } =
-    useContext(Context);
+  const {
+    onSent,
+    recentPrompt,
+    showResult,
+    loading,
+    resultData,
+    previewUrl,
+    setPreviewUrl,
+  } = useContext(Context);
 
-  const [fileObj, setFileObj] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState(null);
   const fileInputRef = useRef();
   const [displayText, setDisplayText] = useState("");
+  const [loadingImage, setLoadingImage] = useState(false);
+  const [image, setImage] = useState(null);
 
   const handleInputSent = () => {
     const prompt = displayText;
     onSent(prompt);
     setDisplayText("");
+    setImage(null); //clearing input image
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   const handleInputChange = (e) => {
@@ -38,22 +52,26 @@ const Main = () => {
     }
   };
 
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-
-    if (file) {
-      setFileObj(file);
-      setPreviewUrl(URL.createObjectURL(file));
-    } else {
-      setFileObj(null);
-      setPreviewUrl(null);
+  const handleImageUpload = async (e) => {
+    try {
+      setLoadingImage(true);
+      const file = e.target.files[0];
+      if (file) {
+        const url = await uploadToCloudinary(file);
+        setPreviewUrl(url);
+        setImage(url);
+      } else {
+        setPreviewUrl(null);
+      }
+    } catch {
+      console.log("error uplaoding");
+    } finally {
+      setLoadingImage(false);
     }
   };
 
   const handleDeleteImg = () => {
-    setFileObj(null);
     if (previewUrl) {
-      URL.revokeObjectURL(previewUrl); // Clean up the object URL
       setPreviewUrl(null);
     }
     // Reset the file input value so the same file can be selected again
@@ -82,7 +100,7 @@ const Main = () => {
               <p>How can I help you today?</p>
             </div>
 
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-3.5 p-5">
+            <div className="sm:grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-3.5 p-5 hidden">
               <div
                 className="h-50 p-4 bg-[#f0f4f9] relative rounded-[10px] cursor-pointer hover:bg-[#dfe4ea]"
                 onClick={handlePromptCard}
@@ -126,7 +144,9 @@ const Main = () => {
                 />
               </div>
               <div
-                className={`h-50 p-4 bg-[#f0f4f9] relative rounded-[10px] cursor-pointer hover:bg-[#dfe4ea] ${previewUrl ? "mb-20" : "mb-4"}`}
+                className={`h-50 p-4 bg-[#f0f4f9] relative rounded-[10px] cursor-pointer hover:bg-[#dfe4ea] ${
+                  previewUrl ? "mb-20" : "mb-4"
+                }`}
                 onClick={handlePromptCard}
               >
                 <p className="text-[#585858] text-lg">
@@ -148,7 +168,19 @@ const Main = () => {
                 src={assets.user_icon}
                 alt=""
               />
-              <p>{recentPrompt}</p>
+              {previewUrl ? (
+                <div className="flex flex-col gap-2 items-end w-full">
+                  <img
+                    src={previewUrl}
+                    className="w-36 h-36 rounded-md border border-gray-100/40 shadow p-4"
+                  />{" "}
+                  <p className="font-semibold shadow border border-gray-100 px-3 py-2 rounded-md">
+                    {recentPrompt}
+                  </p>
+                </div>
+              ) : (
+                <p className="font-semibold shadow border border-gray-100 px-3 py-2 rounded-md">{recentPrompt}</p>
+              )}
             </div>
             <div className="flex items-start gap-5">
               <img className="w-10 " src={assets.gemini_icon} alt="" />
@@ -171,62 +203,71 @@ const Main = () => {
             </div>
           </div>
         )}
-      
-            
-      
+
         <div className="absolute bottom-0 w-full max-w-[900px] px-5 ">
           <div className="relative  bg-[#f0f4f9] sm:py-5 sm:px-5 py-[5px] px-2.5 rounded-[50px] ">
             <div>
-              {previewUrl && (
-              <div className="w-18 h-18 md:w-14 md:h-14 bottom-16 flex">
-                <img className="w-full rounded-md" src={previewUrl} />{" "}
-                <button className="absolute text-red-800" onClick={handleDeleteImg}>
-                  <BsX
-                    className="bg-white/80 rounded-full hover:scale-110 cursor-pointer transition duration-300"
+              {loadingImage ? (
+                <div className="w-18 h-18 md:w-14 md:h-14 bg-white flex justify-center items-center rounded-md">
+                  <ImSpinner8 className="animate-spin text-xl" />
+                </div>
+              ) : previewUrl && image !== null ? (
+                <div className="w-18 h-18 md:w-14 md:h-14 bottom-16 flex">
+                  <img
+                    className="w-full rounded-md"
+                    src={image}
+                    alt="uploaded preview"
                   />
-                </button>
-              </div>
-            )}
-            </div>
-            <div className="flex items-center justify-between gap-5"><input
-              type="text"
-              onChange={handleInputChange}
-              value={displayText}
-              placeholder="Enter a prompt here"
-              className="sm:flex-1 mt-1 bg-transparent border-none outline-none p-2 text-lg flex-none w-[150px] sm:w-full"
-            />
-            <div className="flex gap-3.5 items-center">
-              <label htmlFor="img-upload">
-                <img
-                  className="sm:w-6 w-5 cursor-pointer"
-                  src={assets.gallery_icon}
-                  alt=""
-                />
-                <input
-                  id="img-upload"
-                  type="file"
-                  accept=".png, .jpg, .jpeg"
-                  hidden
-                  ref={fileInputRef} // Attach ref to clear the input
-                  onChange={handleImageUpload}
-                />
-              </label>
-
-              <img
-                className="sm:w-6 w-5 cursor-pointer"
-                src={assets.mic_icon}
-                alt=""
-              />
-              {displayText ? (
-                <img
-                  onClick={handleInputSent}
-                  onKeyDown={handleKeyDown}
-                  className="sm:w-6 w-5 cursor-pointer"
-                  src={assets.send_icon}
-                  alt=""
-                />
+                  <button
+                    className="absolute text-red-800"
+                    onClick={handleDeleteImg}
+                  >
+                    <BsX className="bg-white/80 rounded-full hover:scale-110 cursor-pointer transition duration-300" />
+                  </button>
+                </div>
               ) : null}
-            </div></div>
+            </div>
+            <div className="flex items-center justify-between gap-5">
+              <input
+                type="text"
+                onChange={handleInputChange}
+                value={displayText}
+                placeholder="Enter a prompt here"
+                className="sm:flex-1 mt-1 bg-transparent border-none outline-none p-2 md:text-lg text-sm flex-none w-[150px] sm:w-full"
+              />
+              <div className="flex gap-3.5 items-center">
+                <label htmlFor="img-upload">
+                  <img
+                    className="sm:w-6 w-5 cursor-pointer"
+                    src={assets.gallery_icon}
+                    alt=""
+                  />
+                  <input
+                    id="img-upload"
+                    type="file"
+                    accept=".png, .jpg, .jpeg, .webp"
+                    hidden
+                    ref={fileInputRef} // Attach ref to clear the input
+                    onChange={handleImageUpload}
+                  />
+                </label>
+
+                <img
+                  className="sm:w-6 w-5 cursor-pointer"
+                  src={assets.mic_icon}
+                  alt=""
+                />
+                {displayText ? (
+                  <img
+                    onClick={handleInputSent}
+                    onKeyDown={handleKeyDown}
+                    className="sm:w-6 w-5 cursor-pointer"
+                    src={assets.send_icon}
+                    alt=""
+                  />
+                ) : null}
+              </div>
+            </div>
           </div>
 
           <p className="text-xs my-3.5 mx-auto text-center font-light">
